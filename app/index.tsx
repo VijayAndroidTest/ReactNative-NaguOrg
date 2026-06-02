@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   FlatList,
   ActivityIndicator,
@@ -16,12 +16,23 @@ import { useProducts } from 'hooks/useProducts';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+ import * as Location from 'expo-location';
+ import { getDistance } from 'geolib';
+import * as Linking from 'expo-linking';
+
+
 
 export default function HomeScreen() {
   const { products, loading } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState("All category");
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [distanceKm, setDistanceKm] =
+  useState<string>('');
+
+const shopLat = 11.1875987;
+const shopLng = 77.2782647;
 
   const categories = [
     "All category", "Personal Care Products", "Health Care Products", 
@@ -33,6 +44,62 @@ export default function HomeScreen() {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+
+useEffect(() => {
+  getUserLocation();
+}, []);
+ 
+
+const getUserLocation = async () => {
+  try {
+    const { status } =
+      await Location.requestForegroundPermissionsAsync();
+
+    if (status !== 'granted') {
+      Alert.alert(
+        'Location Permission',
+        'Location permission denied'
+      );
+      return;
+    }
+
+    const location =
+      await Location.getCurrentPositionAsync({});
+
+    const userLat =
+      location.coords.latitude;
+
+    const userLng =
+      location.coords.longitude;
+
+    const distance = getDistance(
+      {
+        latitude: userLat,
+        longitude: userLng,
+      },
+      {
+        latitude: shopLat,
+        longitude: shopLng,
+      }
+    );
+
+    setDistanceKm(
+      (distance / 1000).toFixed(1)
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
+
+const openDirections = () => {
+  Linking.openURL(
+    `https://www.google.com/maps/dir/?api=1&destination=${shopLat},${shopLng}`
+  );
+};
 
 const auth = getAuth();
 
@@ -73,7 +140,27 @@ const handleLogout = async () => {
   return (
     <View style={styles.container}>
       <Text style={styles.headerTitle}>NAGU ORGANICS</Text>
-      
+      <View style={styles.locationCard}>
+  <Text style={styles.locationTitle}>
+    Nagu Organics Store
+  </Text>
+
+  <Text style={styles.locationText}>
+    Distance:
+    {distanceKm
+      ? ` ${distanceKm} km`
+      : ' Calculating...'}
+  </Text>
+
+  <TouchableOpacity
+    style={styles.directionButton}
+    onPress={openDirections}
+  >
+    <Text style={styles.directionText}>
+      Get Directions
+    </Text>
+  </TouchableOpacity>
+</View>
       <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
@@ -101,6 +188,8 @@ const handleLogout = async () => {
                 <Text style={styles.itemText}>{cat}</Text>
               </TouchableOpacity>
             ))}
+
+            
           </View>
         </TouchableOpacity>
       </Modal>
@@ -133,5 +222,34 @@ const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center' },
   modalContent: { backgroundColor: 'white', margin: 20, borderRadius: 10, padding: 10 },
   item: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  itemText: { fontSize: 16, color: '#000' }
+  itemText: { fontSize: 16, color: '#000' },
+  locationCard: {
+  backgroundColor: '#2a2a2a',
+  padding: 15,
+  borderRadius: 10,
+  marginBottom: 10,
+},
+
+locationTitle: {
+  color: '#fff',
+  fontSize: 18,
+  fontWeight: 'bold',
+},
+
+locationText: {
+  color: '#fff',
+  marginTop: 5,
+},
+
+directionButton: {
+  marginTop: 10,
+  backgroundColor: '#007AFF',
+  padding: 10,
+  borderRadius: 8,
+},
+
+directionText: {
+  color: '#fff',
+  textAlign: 'center',
+},
 });
