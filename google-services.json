@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "924827024871",
+    "firebase_url": "https://naguorg-82831-default-rtdb.firebaseio.com",
+    "project_id": "naguorg-82831",
+    "storage_bucket": "naguorg-82831.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:924827024871:android:b7a1c7f5758c35ceea5142",
+        "android_client_info": {
+          "package_name": "com.example.naguorg"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "924827024871-eqk0uceqapivg86376ipf7b7card7936.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.naguorg",
+            "certificate_hash": "e4e57e4dc22dde60cd0b1c3c6163614377020f3f"
+          }
+        },
+        {
+          "client_id": "924827024871-ojjn6cajlevvta20d4mv6pkqg1u2b94q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgfSc7e-Sgpri8KImMJ5UC3HHC7fFQlgQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "924827024871-ojjn6cajlevvta20d4mv6pkqg1u2b94q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "924827024871-co7stlp9edcekpvml4ods8l91thakj63.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.vijayarajan1003.naguorganics"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
