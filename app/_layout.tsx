@@ -6,43 +6,49 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function RootLayout() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState<User | null>(null);
-  const [isGuest, setIsGuest] = useState(false);
 
   const router = useRouter();
   const segments = useSegments();
 
   useEffect(() => {
-    const initialize = async () => {
-      const guest = await AsyncStorage.getItem('guestMode');
-      setIsGuest(guest === 'true');
+    const auth = getAuth();
 
-      const auth = getAuth();
-
-      onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (firebaseUser) => {
         setUser(firebaseUser);
-        setInitializing(false);
-      });
-    };
 
-    initialize();
+        const guestMode =
+          await AsyncStorage.getItem('guestMode');
+
+        const inAuthGroup =
+          segments[0] === '(auth)';
+
+        if (
+          !firebaseUser &&
+          guestMode !== 'true' &&
+          !inAuthGroup
+        ) {
+          router.replace('/(auth)/login');
+        }
+
+        if (
+          (firebaseUser || guestMode === 'true') &&
+          inAuthGroup
+        ) {
+          router.replace('/');
+        }
+
+        setInitializing(false);
+      }
+    );
+
+    return unsubscribe;
   }, []);
 
-  useEffect(() => {
-    if (initializing) return;
-
-    const inAuthGroup = segments[0] === '(auth)';
-
-    if (!user && !isGuest && !inAuthGroup) {
-      router.replace('/(auth)/login');
-      return;
-    }
-
-    if (user  && inAuthGroup) {
-      router.replace('/');
-    }
-  }, [user, isGuest, initializing, segments]);
-
-  if (initializing) return null;
+  if (initializing) {
+    return null;
+  }
 
   return <Slot />;
 }

@@ -31,14 +31,16 @@ export default function LoginScreen() {
   }, []);
 
 const handleSkip = async () => {
-  console.log('SKIP BUTTON CLICKED');
+  try {
+    await AsyncStorage.setItem(
+      'guestMode',
+      'true'
+    );
 
-  await AsyncStorage.setItem('guestMode', 'true');
-
-  const value = await AsyncStorage.getItem('guestMode');
-  console.log('guestMode =', value);
-console.log(value);
-  router.replace('/');
+    router.replace('/');
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const handleGoogleSignIn = async () => {
@@ -49,7 +51,11 @@ const handleGoogleSignIn = async () => {
 
     const userInfo = await GoogleSignin.signIn();
 
-    console.log('GOOGLE USER INFO', userInfo);
+    console.log('USER', userInfo.type);
+console.log('GUEST', userInfo.type);
+console.log('SEGMENT', userInfo.type);
+
+    console.log('GOOGLE USER INFO', userInfo.data);
 
     const idToken = userInfo.data?.idToken;
 

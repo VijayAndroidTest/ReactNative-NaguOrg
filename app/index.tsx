@@ -36,26 +36,17 @@ export default function HomeScreen() {
 
 const auth = getAuth();
 
-const handleAddToCart = (item: any) => {
-  console.log('ADD TO CART CLICKED');
+const handleAddToCart = async (item: any) => {
+  const guestMode =
+    await AsyncStorage.getItem('guestMode');
 
-  if (!auth.currentUser) {
-    console.log('USER NOT LOGGED IN');
-
+  if (!auth.currentUser || guestMode === 'true') {
     Alert.alert(
       'Login Required',
-      'Please login to add items to cart',
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            console.log('OK PRESSED');
-            router.push('/(auth)/login');
-          },
-        },
-      ]
+      'Please login to add items to cart'
     );
 
+    router.push('/(auth)/login');
     return;
   }
 
