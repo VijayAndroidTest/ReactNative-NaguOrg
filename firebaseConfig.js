@@ -5,7 +5,7 @@ import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
- apiKey: "AIzaSyDav4vM8t_M7zPrwQL1serbL_6VFmHWVHY",
+ apiKey: "AIzaSyDgfSc7e-Sgpri8KImMJ5UC3HHC7fFQlgQ",
   authDomain: "naguorg-82831.firebaseapp.com",
   databaseURL: "https://naguorg-82831-default-rtdb.firebaseio.com",
   projectId: "naguorg-82831",

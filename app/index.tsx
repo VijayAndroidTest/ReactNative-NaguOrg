@@ -15,6 +15,7 @@ import ProductCard from 'components/ProductCard';
 import { useProducts } from 'hooks/useProducts';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 export default function HomeScreen() {
   const { products, loading } = useProducts();
@@ -67,7 +68,10 @@ const handleLogout = async () => {
   await AsyncStorage.removeItem('guestMode');
 
   const auth = getAuth();
+
   await signOut(auth);
+
+  await GoogleSignin.signOut(); // important
 
   router.replace('/(auth)/login');
 };

@@ -26,6 +26,7 @@ export default function LoginScreen() {
     GoogleSignin.configure({
       webClientId:
         '924827024871-ojjn6cajlevvta20d4mv6pkqg1u2b94q.apps.googleusercontent.com',
+        offlineAccess: true,
     });
   }, []);
 
@@ -40,30 +41,38 @@ console.log(value);
   router.replace('/');
 };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      await GoogleSignin.hasPlayServices();
+const handleGoogleSignIn = async () => {
+  try {
+    console.log('GOOGLE LOGIN START');
 
-      const userInfo = await GoogleSignin.signIn();
+    await GoogleSignin.hasPlayServices();
 
-      const idToken = userInfo.data?.idToken;
+    const userInfo = await GoogleSignin.signIn();
 
-      if (!idToken) {
-        throw new Error('No ID Token');
-      }
+    console.log('GOOGLE USER INFO', userInfo);
 
-      const credential =
-        GoogleAuthProvider.credential(idToken);
+    const idToken = userInfo.data?.idToken;
 
-      await signInWithCredential(auth, credential);
-
-      await AsyncStorage.removeItem('guestMode');
-
-      router.replace('/');
-    } catch (error: any) {
-      Alert.alert('Google Login Failed', error.message);
+    if (!idToken) {
+      throw new Error('No ID Token');
     }
-  };
+console.log('idToken', idToken);
+
+    const credential =
+      GoogleAuthProvider.credential(idToken);
+
+    await signInWithCredential(auth, credential);
+console.log("CURRENT USER", auth.currentUser);
+    console.log('FIREBASE LOGIN SUCCESS');
+console.log('credential', credential);
+    await AsyncStorage.removeItem('guestMode');
+
+    router.replace('/');
+  } catch (error: any) {
+    console.log('GOOGLE ERROR', error);
+    Alert.alert('Google Login Failed', error.message);
+  }
+};
 
   return (
     <View style={styles.container}>
