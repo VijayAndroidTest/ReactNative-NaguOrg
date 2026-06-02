@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect , useContext } from 'react';
 import {
   FlatList,
   ActivityIndicator,
@@ -11,7 +11,7 @@ import {
   Alert
 } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth';
-import ProductCard from 'components/ProductCard';
+import ProductCard from '../components/ProductCard';
 import { useProducts } from 'hooks/useProducts';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,9 +20,11 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
  import { getDistance } from 'geolib';
 import * as Linking from 'expo-linking';
 
-
+import { CartContext } from '../context/CartContext'; // Add this import
 
 export default function HomeScreen() {
+const { addToCart } = useContext(CartContext);
+
   const { products, loading } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState("All category");
   const [modalVisible, setModalVisible] = useState(false);
@@ -92,15 +94,18 @@ const getUserLocation = async () => {
   }
 };
 
+const openDirections = async () => {
+  const url = `https://www.google.com/maps/dir/?api=1&destination=${shopLat},${shopLng}`;
 
+  console.log('MAP URL:', url);
 
-
-const openDirections = () => {
-  Linking.openURL(
-    `https://www.google.com/maps/dir/?api=1&destination=${shopLat},${shopLng}`
-  );
+  try {
+    await Linking.openURL(url);
+    console.log('MAP OPENED');
+  } catch (e) {
+    console.log('MAP ERROR:', e);
+  }
 };
-
 const auth = getAuth();
 
 const handleAddToCart = async (item: any) => {
@@ -116,7 +121,8 @@ const handleAddToCart = async (item: any) => {
     router.push('/(auth)/login');
     return;
   }
-
+addToCart(item);
+  Alert.alert("Added", `${item.name} added to cart.`);
   console.log('Added:', item.name);
 };
 
@@ -137,9 +143,17 @@ const handleLogout = async () => {
   if (loading) return <ActivityIndicator size="large" />;
 
 
-  return (
+  return ( 
     <View style={styles.container}>
-      <Text style={styles.headerTitle}>NAGU ORGANICS</Text>
+
+              <View style={styles.headerContainer}>
+  <Text style={styles.headerTitle}>NAGU ORGANICS</Text>
+  
+  
+</View>
+
+
+     
       <View style={styles.locationCard}>
   <Text style={styles.locationTitle}>
     Nagu Organics Store
@@ -160,7 +174,10 @@ const handleLogout = async () => {
       Get Directions
     </Text>
   </TouchableOpacity>
+  
 </View>
+
+
       <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
@@ -192,6 +209,7 @@ const handleLogout = async () => {
             
           </View>
         </TouchableOpacity>
+
       </Modal>
 
 <FlatList
@@ -205,6 +223,14 @@ renderItem={({ item }) => (
   />
 )}
       />
+
+      {/* ADDED: Floating Green Cart Button */}
+      <TouchableOpacity 
+        style={styles.floatingCart} 
+        onPress={() => router.push('/cart')}
+      >
+        <Text style={{ color: '#fff', fontWeight: 'bold' }}>🛒 Cart</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -252,4 +278,32 @@ directionText: {
   color: '#fff',
   textAlign: 'center',
 },
+headerContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    padding: 10,
+    backgroundColor: '#1a1a1a' // Match background
+  },
+  cartIcon: { 
+    padding: 10, 
+    backgroundColor: '#2e7d32', // Green color
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  floatingCart: {
+    position: 'absolute',
+    bottom: 30,
+    right: 20,
+    backgroundColor: '#2e7d32', // Green color
+    padding: 20,
+    borderRadius: 30,
+    elevation: 10, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    zIndex: 100, // Keeps it on top of other elements
+  },
 });

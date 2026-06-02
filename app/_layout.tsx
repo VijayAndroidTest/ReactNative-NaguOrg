@@ -2,8 +2,9 @@ import { Slot, useRouter, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CartProvider from '../context/CartContext'; // Use the default import
 
-export default function RootLayout() {
+export default function RootLayout() { 
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState<User | null>(null);
 
@@ -50,5 +51,10 @@ export default function RootLayout() {
     return null;
   }
 
-  return <Slot />;
+  // YOU MUST WRAP <Slot /> WITH <CartProvider>
+  return (
+    <CartProvider>
+      <Slot />
+    </CartProvider>
+  );
 }
