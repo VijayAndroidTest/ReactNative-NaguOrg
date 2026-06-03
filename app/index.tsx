@@ -10,7 +10,7 @@ import {
   TextInput,
   Alert
 } from 'react-native';
-import { getAuth, signOut } from 'firebase/auth';
+import auth from '@react-native-firebase/auth';
 import ProductCard from '../components/ProductCard';
 import { useProducts } from 'hooks/useProducts';
 import { router } from 'expo-router';
@@ -106,13 +106,16 @@ const openDirections = async () => {
     console.log('MAP ERROR:', e);
   }
 };
-const auth = getAuth();
+const firebaseAuth = auth();
 
 const handleAddToCart = async (item: any) => {
+  console.log('ADD TO CART CLICKED');
+  console.log('PRODUCT:', JSON.stringify(item, null, 2));
   const guestMode =
     await AsyncStorage.getItem('guestMode');
-
-  if (!auth.currentUser || guestMode === 'true') {
+ console.log('USER:', firebaseAuth.currentUser?.uid);
+  console.log('GUEST MODE:', guestMode);
+  if (!firebaseAuth.currentUser || guestMode === 'true') {
     Alert.alert(
       'Login Required',
       'Please login to add items to cart'
@@ -131,11 +134,9 @@ addToCart(item);
 const handleLogout = async () => {
   await AsyncStorage.removeItem('guestMode');
 
-  const auth = getAuth();
+  await auth().signOut();
 
-  await signOut(auth);
-
-  await GoogleSignin.signOut(); // important
+  await GoogleSignin.signOut();
 
   router.replace('/(auth)/login');
 };
@@ -214,21 +215,28 @@ const handleLogout = async () => {
 
 <FlatList
   data={filteredProducts}
-  keyExtractor={(item) => item.id}
+  keyExtractor={(item) => item.name}
   numColumns={2}
-renderItem={({ item }) => (
-  <ProductCard
-    item={item}
-    onAddToCart={() => handleAddToCart(item)}
-  />
-)}
-      />
+  renderItem={({ item }) => {
+    console.log('PRODUCT ITEM', item);
 
-      {/* ADDED: Floating Green Cart Button */}
-      <TouchableOpacity 
-        style={styles.floatingCart} 
-        onPress={() => router.push('/cart')}
-      >
+    return (
+      <ProductCard
+        item={item}
+        onAddToCart={() => handleAddToCart(item)}
+      />
+    );
+  }}
+/>
+
+   <TouchableOpacity
+  style={styles.floatingCart}
+  onPress={() => {
+    console.log('CART BUTTON CLICKED');
+    router.push('/cart');
+    console.log('AFTER ROUTER PUSH');
+  }}
+>
         <Text style={{ color: '#fff', fontWeight: 'bold' }}>🛒 Cart</Text>
       </TouchableOpacity>
     </View>

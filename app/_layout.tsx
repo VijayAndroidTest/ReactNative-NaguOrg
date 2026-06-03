@@ -1,42 +1,32 @@
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CartProvider from '../context/CartContext'; // Use the default import
+import CartProvider from '../context/CartContext';
+import auth from '@react-native-firebase/auth'; // Native auth import
+import { FirebaseAuthTypes } from '@react-native-firebase/auth'; // Import types
 
 export default function RootLayout() { 
   const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
+  // Use the native type for the user state
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
 
   const router = useRouter();
   const segments = useSegments();
 
   useEffect(() => {
-    const auth = getAuth();
-
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      async (firebaseUser) => {
+    // Correct Native Syntax: Call the auth() instance directly
+    const unsubscribe = auth().onAuthStateChanged(
+      async (firebaseUser: FirebaseAuthTypes.User | null) => {
         setUser(firebaseUser);
 
-        const guestMode =
-          await AsyncStorage.getItem('guestMode');
+        const guestMode = await AsyncStorage.getItem('guestMode');
+        const inAuthGroup = segments[0] === '(auth)';
 
-        const inAuthGroup =
-          segments[0] === '(auth)';
-
-        if (
-          !firebaseUser &&
-          guestMode !== 'true' &&
-          !inAuthGroup
-        ) {
+        if (!firebaseUser && guestMode !== 'true' && !inAuthGroup) {
           router.replace('/(auth)/login');
         }
 
-        if (
-          (firebaseUser || guestMode === 'true') &&
-          inAuthGroup
-        ) {
+        if ((firebaseUser || guestMode === 'true') && inAuthGroup) {
           router.replace('/');
         }
 
@@ -51,7 +41,6 @@ export default function RootLayout() {
     return null;
   }
 
-  // YOU MUST WRAP <Slot /> WITH <CartProvider>
   return (
     <CartProvider>
       <Slot />

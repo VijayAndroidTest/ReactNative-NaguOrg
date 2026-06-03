@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebaseConfig'; 
+
+import firestore from '@react-native-firebase/firestore'; // ADD THIS
 
 export function useProducts() {
   const [products, setProducts] = useState<any[]>([]);
@@ -9,7 +9,7 @@ export function useProducts() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "products"));
+        const querySnapshot = await firestore().collection('products').get();
         const data = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
