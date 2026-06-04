@@ -15,19 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "924827024871-96eqvl8hraormhkpou18kd88k89agekv.apps.googleusercontent.com",
+          "client_id": "924827024871-bfeorkkv1co0ra56a4dhs60cs31u71ut.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.naguorg",
-            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
-          }
-        },
-        {
-          "client_id": "924827024871-eqk0uceqapivg86376ipf7b7card7936.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.naguorg",
-            "certificate_hash": "e4e57e4dc22dde60cd0b1c3c6163614377020f3f"
+            "certificate_hash": "c57f707260d0f594d82cb6b00f5986bd03107cf8"
           }
         },
         {

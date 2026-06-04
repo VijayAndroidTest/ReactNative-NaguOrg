@@ -7,14 +7,15 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.vijayarajan1003.naguorganics",
-      "googleServicesFile": "./GoogleService-Info.plist",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
-    },
+   "ios": {
+  "supportsTablet": true,
+  "bundleIdentifier": "com.vijayarajan1003.naguorganics",
+  "googleServicesFile": "./GoogleService-Info.plist",
+  "infoPlist": {
+    "ITSAppUsesNonExemptEncryption": false,
+    "NSLocationWhenInUseUsageDescription": "We use your location to calculate distance to Nagu Organics Store."
+  }
+},
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",

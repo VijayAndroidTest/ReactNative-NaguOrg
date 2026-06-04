@@ -1,9 +1,12 @@
 import { Slot, useRouter, useSegments } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState  } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CartProvider from '../context/CartContext';
 import auth from '@react-native-firebase/auth'; // Native auth import
 import { FirebaseAuthTypes } from '@react-native-firebase/auth'; // Import types
+import {
+  BackHandler,Alert,
+} from 'react-native';
 
 export default function RootLayout() { 
   const [initializing, setInitializing] = useState(true);
@@ -36,6 +39,37 @@ export default function RootLayout() {
 
     return unsubscribe;
   }, []);
+
+  useEffect(() => {
+  const backAction = () => {
+    Alert.alert(
+      'Exit App',
+      'Are you sure you want to exit?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Exit',
+          onPress: () =>
+            BackHandler.exitApp(),
+        },
+      ]
+    );
+
+    return true;
+  };
+
+  const subscription =
+    BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+  return () =>
+    subscription.remove();
+}, []);
 
   if (initializing) {
     return null;

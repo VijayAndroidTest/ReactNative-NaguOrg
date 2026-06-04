@@ -19,11 +19,30 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
  import * as Location from 'expo-location';
  import { getDistance } from 'geolib';
 import * as Linking from 'expo-linking';
-
+import {
+  BackHandler,
+} from 'react-native';
 import { CartContext } from '../context/CartContext'; // Add this import
+import { Platform } from 'react-native';
 
 export default function HomeScreen() {
-const { addToCart } = useContext(CartContext);
+const context =
+  useContext(CartContext);
+
+if (!context) {
+  return null;
+}
+
+const {
+  addToCart,
+  cart,
+} = context;
+
+const cartCount = cart.reduce(
+  (sum: number, item: any) =>
+    sum + item.quantity,
+  0
+);
 
   const { products, loading } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState("All category");
@@ -50,6 +69,46 @@ const shopLng = 77.2782647;
 
 useEffect(() => {
   getUserLocation();
+}, []);
+
+useEffect(() => {
+  const backAction = () => {
+    Alert.alert(
+      'Exit App',
+      'Are you sure you want to exit?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Exit',
+          onPress: () =>
+            BackHandler.exitApp(),
+        },
+      ]
+    );
+    if (Platform.OS !== 'android') {
+    return;
+  }
+
+  const subscription =
+    BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return true;
+  };
+
+  const subscription =
+    BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+  return () =>
+    subscription.remove();
 }, []);
  
 
@@ -106,6 +165,9 @@ const openDirections = async () => {
     console.log('MAP ERROR:', e);
   }
 };
+const callStore = async () => {
+  await Linking.openURL('tel:+919876543210');
+};
 const firebaseAuth = auth();
 
 const handleAddToCart = async (item: any) => {
@@ -129,16 +191,33 @@ addToCart(item);
   console.log('Added:', item.name);
 };
 
-
-
 const handleLogout = async () => {
-  await AsyncStorage.removeItem('guestMode');
+  Alert.alert(
+    'Logout',
+    'Are you sure you want to logout?',
+    [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Logout',
+        onPress: async () => {
+          await AsyncStorage.removeItem(
+            'guestMode'
+          );
 
-  await auth().signOut();
+          await auth().signOut();
 
-  await GoogleSignin.signOut();
+          await GoogleSignin.signOut();
 
-  router.replace('/(auth)/login');
+          router.replace(
+            '/(auth)/login'
+          );
+        },
+      },
+    ]
+  );
 };
 
   if (loading) return <ActivityIndicator size="large" />;
@@ -147,18 +226,50 @@ const handleLogout = async () => {
   return ( 
     <View style={styles.container}>
 
-              <View style={styles.headerContainer}>
-  <Text style={styles.headerTitle}>NAGU ORGANICS</Text>
-  
-  
+<View style={styles.headerContainer}>
+  <Text style={styles.headerTitle}>
+    NAGU ORGANICS
+  </Text>
+
+  <TouchableOpacity
+    style={styles.cartIcon}
+    onPress={() => router.push('/cart')}
+  >
+    <Text
+      style={{
+        color: '#fff',
+        fontWeight: 'bold',
+      }}
+    >
+      🛒 {cartCount}
+    </Text>
+  </TouchableOpacity>
 </View>
 
 
      
       <View style={styles.locationCard}>
+
+
+<View style={styles.storeRow}>
   <Text style={styles.locationTitle}>
     Nagu Organics Store
   </Text>
+
+  <Text style={styles.phoneText}>
+    +91 9876543210
+  </Text>
+
+  <TouchableOpacity
+    onPress={callStore}
+    style={styles.callButton}
+  >
+    <Text style={styles.callIcon}>
+      📞
+    </Text>
+  </TouchableOpacity>
+</View>
+
 
   <Text style={styles.locationText}>
     Distance:
@@ -214,6 +325,9 @@ const handleLogout = async () => {
       </Modal>
 
 <FlatList
+  contentContainerStyle={{
+    paddingBottom: 30,
+  }}
   data={filteredProducts}
   keyExtractor={(item) => item.name}
   numColumns={2}
@@ -286,20 +400,19 @@ directionText: {
   color: '#fff',
   textAlign: 'center',
 },
-headerContainer: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    padding: 10,
-    backgroundColor: '#1a1a1a' // Match background
-  },
-  cartIcon: { 
-    padding: 10, 
-    backgroundColor: '#2e7d32', // Green color
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
+headerContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 15,
+},
+cartIcon: {
+  backgroundColor: '#2e7d32',
+  paddingHorizontal: 15,
+  paddingVertical: 10,
+  borderRadius: 25,
+  elevation: 5,
+},
   floatingCart: {
     position: 'absolute',
     bottom: 30,
@@ -314,4 +427,29 @@ headerContainer: {
     shadowRadius: 3,
     zIndex: 100, // Keeps it on top of other elements
   },
+  storeRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  flexWrap: 'wrap',
+},
+
+phoneText: {
+  color: '#fff',
+  fontSize: 15,
+  marginLeft: 8,
+},
+
+callButton: {
+  marginLeft: 8,
+  backgroundColor: '#2e7d32',
+  width: 28,
+  height: 28,
+  borderRadius: 14,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+callIcon: {
+  fontSize: 14,
+},
 });
